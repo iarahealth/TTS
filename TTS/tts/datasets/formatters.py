@@ -12,6 +12,24 @@ from tqdm import tqdm
 # DATASETS
 ########################
 
+def iara(root_path, meta_file, ignored_speakers=None):
+    file_ext = "wav"
+    header = "wav_filename|id|profile_id|duration|wav_filesize|transcript"
+    items = []
+    meta_files = glob(f"{root_path}/meta.tsv", recursive=False)
+    assert len(meta_files) == 1
+    meta_file = meta_files[0]
+    with open(meta_file, "r", encoding="utf-8") as file_text:
+        for line in file_text:
+            line = line.strip()
+            if line == header:
+                continue
+            wav_file, _, profile_id, _, _, transcript = line.split("|")
+            items.append(
+                {"text": transcript, "audio_file": wav_file, "speaker_name": profile_id, "root_path": root_path}
+            )
+    return items
+
 
 def cml_tts(root_path, meta_file, ignored_speakers=None):
     """Normalizes the CML-TTS meta data file to TTS format
