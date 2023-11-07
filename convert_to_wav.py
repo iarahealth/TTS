@@ -6,6 +6,7 @@ import pandas as pd
 
 from pydub import AudioSegment
 from tqdm import tqdm
+from multiprocessing import Pool, cpu_count
 
 
 def convert_ogg_to_wav(file_path):
@@ -16,25 +17,36 @@ def convert_ogg_to_wav(file_path):
     return wav_file
 
 
+def process_ogg_file(file_path):
+    convert_ogg_to_wav(file_path)
+    os.remove(file_path)
+
+
 def replace_ogg_with_wav(folder_path):
+    files_to_process = []
     for root, _, files in os.walk(folder_path):
-        for f in tqdm(files):
+        for f in files:
             if f.endswith(".ogg"):
                 ogg_path = os.path.join(root, f)
-                convert_ogg_to_wav(ogg_path)
-                os.remove(ogg_path)
+                files_to_process.append(ogg_path)
+
+    num_cores = cpu_count()
+    with Pool(processes=num_cores) as pool:
+        list(tqdm(pool.imap(process_ogg_file, files_to_process), total=len(files_to_process)))
 
 
 def main():
     parser = argparse.ArgumentParser(
         description="Convert .ogg files to .wav, resampling to 22050 Hz, and replace them in a folder."
     )
-    parser.add_argument("folder_path", help="Path to the folder containing .ogg files", type=str)
+    parser.add_argument("folder_paths", nargs="+", help="Paths to the folders containing .ogg files", type=str)
     parser.add_argument("--meta", help="Path with metadata file", default=None, type=str)
     args = parser.parse_args()
 
-    folder_path = args.folder_path
-    replace_ogg_with_wav(folder_path)
+    folder_paths = args.folder_paths
+    for folder_path in folder_paths:
+        print(f"Processing folder: {folder_path}")
+        replace_ogg_with_wav(folder_path)
     print("Conversion, resampling, and replacement completed.")
 
     if args.meta:
