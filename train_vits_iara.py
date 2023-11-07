@@ -8,6 +8,7 @@ from TTS.tts.datasets import load_tts_samples
 from TTS.tts.models.vits import Vits
 from TTS.tts.utils.speakers import SpeakerManager
 from TTS.tts.utils.text.tokenizer import TTSTokenizer
+from TTS.tts.utils.languages import LanguageManager
 from TTS.utils.audio import AudioProcessor
 from TTS.config import load_config
 
@@ -79,27 +80,25 @@ train_samples, eval_samples = load_tts_samples(
 # eval_samples = train_samples
 
 # init speaker manager for multi-speaker training
-# it maps speaker-id to speaker-name in the model and data-loader
 speaker_manager = SpeakerManager()
 speaker_manager.set_ids_from_data(train_samples + eval_samples, parse_key="speaker_name")
 config.model_args.num_speakers = speaker_manager.num_speakers
 
+language_manager = LanguageManager(config=config)
+config.model_args.num_languages = language_manager.num_languages
+
 config.test_sentences = []
 
-"""
-# Not working?
 config.test_sentences = [
     [
-        "Um arco-\u00edris \u00e9 um fen\u00f4meno \u00f3ptico e meteorol\u00f3gico que separa a luz do sol em seu espectro cont\u00ednuo quando o sol brilha sobre got\u00edculas de \u00e1gua suspensas no ar.",
-        f"{str(next(iter(speaker_manager.get_speakers())))}",
+        "e periesplênico vírgula bem como da rotura rotura parietocólica esquerda vírgula contornos vírgula com áreas de organização",
+        "100067",
         None,
         "pt",
     ],
 ]
-"""
 
-
-model = Vits(config, ap, tokenizer, speaker_manager)
+model = Vits(config, ap, tokenizer, speaker_manager, language_manager)
 
 trainer = Trainer(
     TrainerArgs(restore_path=restore_path),
