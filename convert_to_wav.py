@@ -12,6 +12,7 @@ from multiprocessing import Pool, cpu_count
 def convert_ogg_to_wav(file_path):
     ogg_audio = AudioSegment.from_ogg(file_path)
     ogg_audio = ogg_audio.set_frame_rate(22050)
+    ogg_audio = ogg_audio.set_channels(1)
     wav_file = file_path.replace(".ogg", ".wav")
     ogg_audio.export(wav_file, format="wav")
     return wav_file
