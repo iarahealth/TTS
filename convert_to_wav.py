@@ -39,7 +39,7 @@ def main():
     parser = argparse.ArgumentParser(
         description="Convert .ogg files to .wav, resampling to 22050 Hz, and replace them in a folder."
     )
-    parser.add_argument("folder_paths", nargs="+", help="Paths to the folders containing .ogg files", type=str)
+    parser.add_argument("--folder_paths", nargs="+", help="Paths to the folders containing .ogg files", default=[])
     parser.add_argument("--meta", help="Path with metadata file", default=None, type=str)
     args = parser.parse_args()
 

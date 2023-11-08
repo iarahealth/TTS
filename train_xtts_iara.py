@@ -132,6 +132,7 @@ def main():
         optimizer_wd_only_on_weights=OPTIMIZER_WD_ONLY_ON_WEIGHTS,
         optimizer_params={"betas": [0.9, 0.96], "eps": 1e-8, "weight_decay": 1e-2},
         lr=5e-06,  # learning rate
+        epochs=1000,  # default is 1000
         lr_scheduler="MultiStepLR",
         # it was adjusted accordly for the new step scheme
         lr_scheduler_params={"milestones": [50000 * 18, 150000 * 18, 300000 * 18], "gamma": 0.5, "last_epoch": -1},
@@ -161,6 +162,7 @@ def main():
         eval_split_max_size=config.eval_split_max_size,
         eval_split_size=config.eval_split_size,
     )
+    print(f"> Loaded {len(train_samples)} train and {len(eval_samples)} eval samples.")
 
     # init the trainer and 🚀
     trainer = Trainer(
