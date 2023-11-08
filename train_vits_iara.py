@@ -23,6 +23,8 @@ Usage example:
 class TrainTTSArgs(TrainerArgs):
     config_path: str = field(default=None, metadata={"help": "Path to the config file."})
     restore_path: str = field(default=None, metadata={"help": "Path to the trained model to finetune"})
+    meta_file: str = field(default=None, metadata={"help": "Path to the meta file."})
+    epochs: int = field(default=1000, metadata={"help": "Number of epochs"})
 
 
 train_args = TrainTTSArgs()
@@ -31,13 +33,11 @@ parser = train_args.init_argparse(arg_prefix="")
 args, config_overrides = parser.parse_known_args()
 train_args.parse_args(args)
 
-if args.config_path is None or args.restore_path is None:
-    raise ValueError("Both --config_path and --restore_path are required.")
+if args.config_path is None or args.restore_path is None or args.meta_file is None:
+    raise ValueError("Args --config_path, --restore_path, and --meta_file are required.")
 
-# load config.json and register
 if args.config_path or args.restore_path:
     if args.config_path:
-        # init from a file
         config = load_config(args.config_path)
         if len(config_overrides) > 0:
             config.parse_known_args(config_overrides, relaxed_parser=True)
@@ -55,8 +55,8 @@ else:
 if not os.path.exists(output_dir):
     os.makedirs(output_dir)
 
-
-print(config.model_args)
+config.epochs = args.epochs
+config.datasets[0].meta_file_train = args.meta_file
 
 # Initialize the audio processor
 # Audio processor is used for feature extraction and audio I/O.
