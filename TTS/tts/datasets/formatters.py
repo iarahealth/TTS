@@ -12,11 +12,12 @@ from tqdm import tqdm
 # DATASETS
 ########################
 
+
 def iara(root_path, meta_file, ignored_speakers=None):
-    file_ext = "wav"
     header = "wav_filename|id|profile_id|duration|wav_filesize|transcript"
     items = []
-    meta_files = glob(f"{root_path}/meta.tsv", recursive=False)
+    print(root_path, meta_file)
+    meta_files = glob(f"{meta_file}", recursive=False)
     assert len(meta_files) == 1
     meta_file = meta_files[0]
     with open(meta_file, "r", encoding="utf-8") as file_text:
