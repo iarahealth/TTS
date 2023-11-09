@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import os
 import argparse
+import shutil
 
 from trainer import Trainer, TrainerArgs
 
@@ -75,6 +76,9 @@ def main(args):
     # XTTS transfer learning parameters: You we need to provide the paths of XTTS model checkpoint that you want to do the fine tuning.
     tokenizer_file = os.path.join(checkpoints_out_path, os.path.basename(TOKENIZER_FILE_LINK))  # vocab.json file
     xtts_checkpoint = os.path.join(checkpoints_out_path, os.path.basename(XTTS_CHECKPOINT_LINK))  # model.pth file
+
+    # Copy tokenizer_file to out_path
+    shutil.copy(tokenizer_file, out_path)
 
     # Download XTTS v2.0 files if needed
     if not os.path.isfile(tokenizer_file) or not os.path.isfile(xtts_checkpoint):
