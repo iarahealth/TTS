@@ -195,6 +195,12 @@ def main(args):
     )
     trainer.fit()
 
+    best_model_path = os.path.join(out_path, "best_model.pth")
+    model_path = os.path.join(out_path, "model.pth")
+
+    if os.path.exists(best_model_path):
+        os.symlink(best_model_path, model_path)
+
 
 if __name__ == "__main__":
     args = parse_args()
