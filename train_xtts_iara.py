@@ -72,13 +72,10 @@ def main(args):
             [MEL_NORM_LINK, DVAE_CHECKPOINT_LINK], checkpoints_out_path, progress_bar=True
         )
 
-    # Download XTTS v2.0 checkpoint if needed
-    # XTTS transfer learning parameters: You we need to provide the paths of XTTS model checkpoint that you want to do the fine tuning.
+    # Download XTTS v2 checkpoint if needed
+    # XTTS transfer learning parameters: you need to provide the paths of XTTS model checkpoint that you want to do the fine tuning.
     tokenizer_file = os.path.join(checkpoints_out_path, os.path.basename(TOKENIZER_FILE_LINK))  # vocab.json file
     xtts_checkpoint = os.path.join(checkpoints_out_path, os.path.basename(XTTS_CHECKPOINT_LINK))  # model.pth file
-
-    # Copy tokenizer_file to out_path
-    shutil.copy(tokenizer_file, out_path)
 
     # Download XTTS v2.0 files if needed
     if not os.path.isfile(tokenizer_file) or not os.path.isfile(xtts_checkpoint):
@@ -195,9 +192,12 @@ def main(args):
     )
     trainer.fit()
 
-    best_model_path = os.path.join(out_path, "best_model.pth")
-    model_path = os.path.join(out_path, "model.pth")
+    # Copy tokenizer_file to out_path.
+    shutil.copy(tokenizer_file, trainer.output_path)
 
+    # Create a symlink to the best model.
+    best_model_path = os.path.join(trainer.output_path, "best_model.pth")
+    model_path = os.path.join(trainer.output_path, "model.pth")
     if os.path.exists(best_model_path):
         os.symlink(best_model_path, model_path)
 
