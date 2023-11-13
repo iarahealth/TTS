@@ -199,7 +199,7 @@ def main(args):
     best_model_path = os.path.join(trainer.output_path, "best_model.pth")
     model_path = os.path.join(trainer.output_path, "model.pth")
     if os.path.exists(best_model_path):
-        os.symlink(best_model_path, model_path)
+        os.symlink(os.path.basename(best_model_path), model_path)
 
 
 if __name__ == "__main__":
