@@ -4,18 +4,18 @@ import os
 import argparse
 import pandas as pd
 
-from pydub import AudioSegment
+import librosa
+import soundfile as sf
+from noisereduce import reduce_noise
 from tqdm import tqdm
 from multiprocessing import Pool, cpu_count
 
 
-def convert_ogg_to_wav(file_path):
-    ogg_audio = AudioSegment.from_ogg(file_path)
-    ogg_audio = ogg_audio.set_frame_rate(22050)
-    ogg_audio = ogg_audio.set_channels(1)
-    wav_file = file_path.replace(".ogg", ".wav")
-    ogg_audio.export(wav_file, format="wav")
-    return wav_file
+def convert_ogg_to_wav(file_path, sr=22050):
+    y, sr = librosa.load(file_path, sr=sr, mono=True)
+    reduced_noise = reduce_noise(y=y, sr=sr)
+    output_file = file_path.replace(".ogg", ".wav")
+    sf.write(output_file, reduced_noise, sr, format="wav")
 
 
 def process_ogg_file(file_path):
