@@ -36,10 +36,14 @@ def parse_args():
     parser.add_argument("--lr", type=float, default=5e-06, help="Learning rate")
     parser.add_argument("--epochs", type=int, default=1000, help="Number of epochs")
     parser.add_argument("--language", type=str, default="pt", help="Language")
-    parser.add_argument("--dataset", type=str, default="datasets/ptbr_iara/", help="Dataset dir path", required=True)
+    parser.add_argument("--dataset", type=str, help="Dataset dir path", required=True)
     parser.add_argument(
-        "--meta_file", type=str, default="datasets/ptbr_iara/meta.tsv", help="Meta file path", required=True
+        "--speaker_ref",
+        type=str,
+        help="Path to speaker reference audio file to be used in synthesizing test sentences",
+        required=True,
     )
+    parser.add_argument("--meta_file", type=str, help="Meta file path", required=True)
 
     return parser.parse_args()
 
@@ -84,11 +88,7 @@ def main(args):
             [TOKENIZER_FILE_LINK, XTTS_CHECKPOINT_LINK], checkpoints_out_path, progress_bar=True
         )
 
-    # Training sentences generations
-    SPEAKER_REFERENCE = []  # Update this
-    # SPEAKER_REFERENCE = [
-    #    "./tests/data/ljspeech/wavs/LJ001-0002.wav"  # speaker reference to be used in training test sentences
-    # ]
+    speaker_reference = [args.speaker_ref]
     language = config_dataset.language
 
     # Init args and config
@@ -147,18 +147,11 @@ def main(args):
         # It was adjusted accordly for the new step scheme
         lr_scheduler_params={"milestones": [50000 * 18, 150000 * 18, 300000 * 18], "gamma": 0.5, "last_epoch": -1},
         test_sentences=[
-            """
             {
-                "text": "ADD TRANSCRIPTION HERE",
-                "speaker_wav": SPEAKER_REFERENCE,
+                "text": "após exames vírgula a radiografia apresentou uma fratura no fêmur esquerdo ponto parágrafo nova linha",
+                "speaker_wav": speaker_reference,
                 "language": language,
             },
-            {
-                "text": "ADD TRANSCRIPTION HERE",
-                "speaker_wav": SPEAKER_REFERENCE,
-                "language": language,
-            },
-            """
         ],
     )
 
