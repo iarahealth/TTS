@@ -14,18 +14,18 @@ from tqdm import tqdm
 
 
 def iara(root_path, meta_file, ignored_speakers=None):
-    header = "wav_filename|id|profile_id|duration|wav_filesize|transcript"
+    """
+    Iara Health's dataset formatter.
+    """
     items = []
-    print(root_path, meta_file)
-    meta_files = glob(f"{meta_file}", recursive=False)
-    assert len(meta_files) == 1
-    meta_file = meta_files[0]
     with open(meta_file, "r", encoding="utf-8") as file_text:
+        header = file_text.readline().strip()
+        sep = "|" if "|" in header else ","
         for line in file_text:
             line = line.strip()
             if line == header:
                 continue
-            wav_file, _, profile_id, _, _, transcript = line.split("|")
+            wav_file, _, profile_id, _, _, transcript = line.split(sep)
             items.append(
                 {"text": transcript, "audio_file": wav_file, "speaker_name": profile_id, "root_path": root_path}
             )
