@@ -88,8 +88,9 @@ def load_audio(audiopath, sampling_rate, denoise=True):
         print(f"Error with {audiopath}. Max={audio.max()} min={audio.min()}")
     # clip audio invalid values
     audio.clip_(-1, 1)
-    # save_path = audiopath.replace(".ogg", "_proc.wav").replace(".wav", "_proc.wav")
+    # save_path = audiopath.replace(".wav", "_proc.wav").replace(".ogg", "_proc.wav")
     # torchaudio.save(save_path, audio, sampling_rate, format="wav")
+    # exit()
     return audio
 
 
