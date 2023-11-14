@@ -6,6 +6,7 @@ import torch
 import torch.nn.functional as F
 import torchaudio
 from coqpit import Coqpit
+from noisereduce import reduce_noise
 
 from TTS.tts.layers.xtts.gpt import GPT
 from TTS.tts.layers.xtts.hifigan_decoder import HifiDecoder
@@ -65,18 +66,21 @@ def wav_to_mel_cloning(
     return mel
 
 
-def load_audio(audiopath, sampling_rate):
+def load_audio(audiopath, sampling_rate, denoise=True):
     # better load setting following: https://github.com/faroit/python_audio_loading_benchmark
 
     # torchaudio should chose proper backend to load audio depending on platform
     audio, lsr = torchaudio.load(audiopath)
 
-    # stereo to mono if needed
+    # Stereo to mono if needed
     if audio.size(0) != 1:
         audio = torch.mean(audio, dim=0, keepdim=True)
 
     if lsr != sampling_rate:
         audio = torchaudio.functional.resample(audio, lsr, sampling_rate)
+
+    if denoise:
+        audio = torch.tensor(reduce_noise(y=audio, sr=sampling_rate, n_jobs=-1))
 
     # Check some assumptions about audio range. This should be automatically fixed in load_wav_to_torch, but might not be in some edge cases, where we should squawk.
     # '10' is arbitrarily chosen since it seems like audio will often "overdrive" the [-1,1] bounds.
@@ -84,6 +88,8 @@ def load_audio(audiopath, sampling_rate):
         print(f"Error with {audiopath}. Max={audio.max()} min={audio.min()}")
     # clip audio invalid values
     audio.clip_(-1, 1)
+    # save_path = audiopath.replace(".ogg", "_proc.wav").replace(".wav", "_proc.wav")
+    # torchaudio.save(save_path, audio, sampling_rate, format="wav")
     return audio
 
 
