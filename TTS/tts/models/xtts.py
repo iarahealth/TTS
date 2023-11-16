@@ -68,20 +68,19 @@ def wav_to_mel_cloning(
 
 def load_audio(audiopath, sampling_rate, denoise=True):
     # better load setting following: https://github.com/faroit/python_audio_loading_benchmark
-
     # torchaudio should chose proper backend to load audio depending on platform
     audio, lsr = torchaudio.load(audiopath)
-
     # Stereo to mono if needed
     if audio.size(0) != 1:
         audio = torch.mean(audio, dim=0, keepdim=True)
-
     if lsr != sampling_rate:
         audio = torchaudio.functional.resample(audio, lsr, sampling_rate)
-
     if denoise:
-        audio = torch.tensor(reduce_noise(y=audio, sr=sampling_rate, n_jobs=-1))
-
+        denoised_audio = torch.tensor(reduce_noise(y=audio, sr=sampling_rate, n_jobs=-1))
+        if torch.isnan(denoised_audio).any():
+            print(f"[!] Denoised audio {audiopath} contains nan values. Using original audio.")
+        else:
+            audio = denoised_audio
     # Check some assumptions about audio range. This should be automatically fixed in load_wav_to_torch, but might not be in some edge cases, where we should squawk.
     # '10' is arbitrarily chosen since it seems like audio will often "overdrive" the [-1,1] bounds.
     if torch.any(audio > 10) or not torch.any(audio < 0):
