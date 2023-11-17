@@ -92,7 +92,6 @@ def load_audio(audiopath, sampling_rate, denoise=True):
     # exit()
     return audio
 
-
 def pad_or_truncate(t, length):
     """
     Ensure a given tensor t has a specified sequence length by either padding it with zeros or clipping it.
