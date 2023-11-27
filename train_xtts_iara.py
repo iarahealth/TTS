@@ -22,6 +22,12 @@ def parse_args():
     parser = argparse.ArgumentParser(description="GPT XTTS Training")
     parser.add_argument("--run_name", default="GPT_XTTS_Portuguese", help="Run name")
     parser.add_argument("--project_name", default="XTTS_Trainer_Portuguese", help="Project name")
+    parser.add_argument(
+        "--checkpoint",
+        type=str,
+        default=XTTS_CHECKPOINT_LINK,
+        help="Path to checkpoint. Default is from Coqui's XTTS.",
+    )
     parser.add_argument("--dashboard_logger", default="tensorboard", help="Dashboard logger")
     parser.add_argument("--logger_uri", default=None, help="Logger URI")
     parser.add_argument("--out_path", default="./run/training/", help="Path to save checkpoints")
@@ -44,7 +50,6 @@ def parse_args():
         required=True,
     )
     parser.add_argument("--meta_file", type=str, help="Meta file path", required=True)
-
     return parser.parse_args()
 
 
@@ -79,7 +84,10 @@ def main(args):
     # Download XTTS v2 checkpoint if needed
     # XTTS transfer learning parameters: you need to provide the paths of XTTS model checkpoint that you want to do the fine tuning.
     tokenizer_file = os.path.join(checkpoints_out_path, os.path.basename(TOKENIZER_FILE_LINK))  # vocab.json file
-    xtts_checkpoint = os.path.join(checkpoints_out_path, os.path.basename(XTTS_CHECKPOINT_LINK))  # model.pth file
+    if args.checkpoint == XTTS_CHECKPOINT_LINK:
+        xtts_checkpoint = os.path.join(checkpoints_out_path, os.path.basename(XTTS_CHECKPOINT_LINK))  # model.pth file
+    else:
+        xtts_checkpoint = args.checkpoint
 
     # Download XTTS v2.0 files if needed
     if not os.path.isfile(tokenizer_file) or not os.path.isfile(xtts_checkpoint):
@@ -90,6 +98,8 @@ def main(args):
 
     speaker_reference = [args.speaker_ref]
     language = config_dataset.language
+
+    print(" > Checkpoint:", xtts_checkpoint)
 
     # Init args and config
     model_args = GPTArgs(
