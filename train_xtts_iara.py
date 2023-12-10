@@ -20,8 +20,8 @@ XTTS_CHECKPOINT_LINK = "https://coqui.gateway.scarf.sh/hf-coqui/XTTS-v2/main/mod
 
 def parse_args():
     parser = argparse.ArgumentParser(description="GPT XTTS Training")
-    parser.add_argument("--run_name", default="GPT_XTTS_Portuguese", help="Run name")
-    parser.add_argument("--project_name", default="XTTS_Trainer_Portuguese", help="Project name")
+    parser.add_argument("--run_name", default="GPT_XTTS_LANG", help="Run name")
+    parser.add_argument("--project_name", default="XTTS_Trainer_LANG", help="Project name")
     parser.add_argument(
         "--checkpoint",
         type=str,
@@ -207,4 +207,6 @@ def main(args):
 
 if __name__ == "__main__":
     args = parse_args()
+    args.run_name = args.run_name.replace("LANG", args.language)
+    args.project_name = args.project_name.replace("LANG", args.language)
     main(args)
