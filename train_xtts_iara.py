@@ -67,8 +67,12 @@ def main(args):
     out_path = args.out_path
 
     # Define the path where XTTS v2.0.1 files will be downloaded
-    checkpoints_out_path = os.path.join(out_path, "XTTS_v2.0_original_model_files/")
-    os.makedirs(checkpoints_out_path, exist_ok=True)
+    if args.checkpoint == XTTS_CHECKPOINT_LINK:
+        checkpoints_out_path = os.path.join(out_path, "XTTS_v2.0_original_model_files/")
+        os.makedirs(checkpoints_out_path, exist_ok=True)
+    else:
+        # Get the directory of the checkpoint
+        checkpoints_out_path = os.path.dirname(args.checkpoint)
 
     # Set the path to the downloaded files
     dvae_checkpoint = os.path.join(checkpoints_out_path, os.path.basename(DVAE_CHECKPOINT_LINK))
@@ -154,6 +158,7 @@ def main(args):
         lr=args.lr,
         epochs=args.epochs,
         lr_scheduler="MultiStepLR",
+        precision="fp16",
         # It was adjusted accordly for the new step scheme
         lr_scheduler_params={"milestones": [50000 * 18, 150000 * 18, 300000 * 18], "gamma": 0.5, "last_epoch": -1},
         test_sentences=[
